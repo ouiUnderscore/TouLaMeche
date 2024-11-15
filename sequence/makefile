@@ -1,8 +1,8 @@
 # Nom de l'exécutable final
-TARGET = main
+TARGET = test_sequence
 
 # Fichiers sources
-SRCS = main.c sequence.c
+SRCS = test_sequence.c sequence.c
 
 # Fichiers d'objets
 OBJS = $(SRCS:.c=.o) hash_x86_64.o list_x86_64.o
@@ -20,6 +20,6 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Dépendances
-main.o: sequence.h
+test_sequence.o: sequence.h
 sequence.o: sequence.h hash.h
 hash.h: list.h

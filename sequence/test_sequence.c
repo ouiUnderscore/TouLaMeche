@@ -1,4 +1,13 @@
-// TODO: entete commentaire
+/******************************************************************************
+ * Fichier : test_sequence.c
+ * Auteur : Emilie Zammit
+ * Date de création : 06/11/2024
+ * Description : Ce fichier contient les tests unitaires pour la gestion d'un N-gramme, en utilisant
+ * des fonctions définies dans le fichier `sequence.c`. Les tests vérifient le bon
+ * fonctionnement de l'ajout de mots dans le N-gramme, du parcours de la séquence avec
+ * un itérateur, ainsi que de l'initialisation de la table de hachage et du N-gramme.
+ * Des assertions sont utilisées pour valider les résultats obtenus.
+ *****************************************************************************/
 
 #include <assert.h>
 #include <stdio.h>
@@ -71,18 +80,18 @@ int main()
     struct strhash_table *ht = strhash_create(Lg_N_gramme);
     test_initialization(ht);
 
-    test_addWord("mot1", ht, "mot1/(null)/(null)/(null)/");
-    test_addWord("mot2", ht, "mot1/mot2/(null)/(null)/");
-    test_addWord("mot3", ht, "mot1/mot2/mot3/(null)/");
-    test_addWord("mot4", ht, "(null)/mot2/mot3/mot4/");
-    test_addWord("mot5", ht, "mot5/(null)/mot3/mot4/");
+    test_addWord("mot1", ht, "mot1/(null)/(null)/");
+    test_addWord("mot2", ht, "mot1/mot2/(null)/");
+    test_addWord("mot3", ht, "mot1/mot2/mot3/");
+    test_addWord("mot4", ht, "mot2/mot3/mot4/");
+    test_addWord("mot5", ht, "mot5/mot3/mot4/");
 
     test_iterator(ht, "mot3 mot4 mot5 ");
     test_iterator(ht, "mot3 mot4 mot5 ");
 
-    test_addWord("mot6", ht, "mot5/mot6/(null)/mot4/");
-    test_addWord("mot7", ht, "mot5/mot6/mot7/(null)/");
-    test_addWord("mot8", ht, "(null)/mot6/mot7/mot8/");
+    test_addWord("mot6", ht, "mot5/mot6/mot4/");
+    test_addWord("mot7", ht, "mot5/mot6/mot7/");
+    test_addWord("mot8", ht, "mot6/mot7/mot8/");
 
     test_iterator(ht, "mot6 mot7 mot8 ");
 

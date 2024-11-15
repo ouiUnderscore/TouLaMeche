@@ -1,4 +1,12 @@
-// TODO: entete commentaire
+/******************************************************************************
+ * Fichier : sequence.c
+ * Auteur : Emilie Zammit
+ * Date de création : 06/11/2024
+ * Description : Ce fichier contient les fonctions pour gérer une séquence de 
+ * mots dans une table de hachage, avec des opérations comme l'ajout de mots, 
+ * la progression de la séquence et l'utilisation d'un itérateur pour parcourir
+ * la séquence.
+ *****************************************************************************/
 
 #include "sequence.h"
 #include <stdio.h>
@@ -18,7 +26,7 @@ static char *next_word;
 void sequence_initialize(struct strhash_table *ht)
 {
     for (int i = 0; i < Lg_N_gramme + 1; i++)
-        n_gramme[i] = "";
+        n_gramme[i] = strhash_wordAdd(ht, "");
 
     position = 0;
 }
@@ -66,9 +74,6 @@ void sequence_progress(void)
     // Met à jour l'index de l'itérateur pour "avancer" le buffer circulaire.
     // Si iterator atteint Lg_N_gramme, il revient à 0
     position = (position + 1) % (Lg_N_gramme + 1);
-
-    // Transforme la nouvelle position en "" pour indiquer qu'elle est prête pour un nouveau mot
-    n_gramme[position] = "";
 }
 
 //
@@ -91,22 +96,26 @@ char *sequence_printInTab(void)
     debug_buffer[0] = '\0';
     int length = 0;
 
-    for (int i = 0; i < Lg_N_gramme + 1; i++) {
-        const char *word = n_gramme[i];
-
-        if (strcmp(word, "") == 0)
-            word = "(null)";
-
-        length += strlen(word) + 1;
-
-        if (length > BUFFER_LENGTH)
+    for (int i = 0; i < Lg_N_gramme + 1; i++)
+    {
+        if (i != position)
         {
-            fprintf(stderr, "Erreur : La taille du buffer est trop petite\n");
-            return NULL;
-        }
+            const char *word = n_gramme[i];
 
-        strcat(debug_buffer, word);
-        strcat(debug_buffer, "/");
+            if (strcmp(word, "") == 0)
+                word = "(null)";
+
+            length += strlen(word) + 1;
+
+            if (length > BUFFER_LENGTH)
+            {
+                fprintf(stderr, "Erreur : La taille du buffer est trop petite\n");
+                return NULL;
+            }
+
+            strcat(debug_buffer, word);
+            strcat(debug_buffer, "/");
+        }
     }
 
     return debug_buffer;
