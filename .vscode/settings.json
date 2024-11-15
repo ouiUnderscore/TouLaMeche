@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "sequence.h": "c"
+        "sequence.h": "c",
+        "functional": "c"
     }
 }

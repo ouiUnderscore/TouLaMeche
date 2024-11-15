@@ -23,7 +23,3 @@ $(TARGET): $(OBJS)
 main.o: sequence.h
 sequence.o: sequence.h hash.h
 hash.h: list.h
-
-# Nettoyage des fichiers objets et de l'exécutable
-clean:
-	rm -f $(OBJS) $(TARGET)

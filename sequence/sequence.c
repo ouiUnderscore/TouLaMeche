@@ -3,6 +3,11 @@
 #include "sequence.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+// DEBUG
+#define BUFFER_LENGTH 1024
+static char debug_buffer[BUFFER_LENGTH + 1];
 
 static int iterator; // Iterateur pour parcourir les éléments du n_gramme
 static int position; // Position de la prochaine écriture
@@ -12,10 +17,10 @@ static char *next_word;
 // initialise le N-gramme avec des mots vides
 void sequence_initialize(struct strhash_table *ht)
 {
-    for (int i = 0; i < (Lg_N_gramme + 1); i++)
-        n_gramme[i] = NULL; // strhash_wordAdd(ht, NULL);
+    for (int i = 0; i < Lg_N_gramme + 1; i++)
+        n_gramme[i] = "";
 
-    position = 1;
+    position = 0;
 }
 
 // Gestion de l'iterateur permettant de parcourir le N-gramme
@@ -30,7 +35,7 @@ void sequence_itStart(void)
 const char *sequence_itNext(void)
 {
     const char *current_word = n_gramme[iterator];
-    iterator = (iterator + 1) % (Lg_N_gramme + 1); // Avance circulairement
+    iterator = (iterator + 1) % (Lg_N_gramme + 1);
     return current_word;
 }
 
@@ -62,11 +67,8 @@ void sequence_progress(void)
     // Si iterator atteint Lg_N_gramme, il revient à 0
     position = (position + 1) % (Lg_N_gramme + 1);
 
-    // Réinitialise la case précédente avant de mettre à jour la position
-    if (n_gramme[position] != NULL)
-    {
-        n_gramme[position] = NULL; // Réinitialise la case actuelle
-    }
+    // Transforme la nouvelle position en "" pour indiquer qu'elle est prête pour un nouveau mot
+    n_gramme[position] = "";
 }
 
 //
@@ -75,45 +77,37 @@ void sequence_progress(void)
 // affiche le N-gramme courant, les mots sont séparés par des '/'
 void sequence_print(void)
 {
-    int it_temp = iterator;
-
-    for (int i = 0; i < (Lg_N_gramme + 1); i++)
-    {
-        if (it_temp == (Lg_N_gramme + 1))
-        {
+    for (int i = 0; i < Lg_N_gramme + 1; i++)
+        if (i != position)
             printf("%s/", n_gramme[i]);
-            it_temp = 0;
-        }
         else
-        {
-            printf("%s/", n_gramme[i]);
-            it_temp++;
-        }
-    }
-    printf("\n");
-    
-    // Sans les nulls
-    it_temp = iterator;
-    for (int i = 0; i < (Lg_N_gramme + 1); i++)
-    {
-        if (n_gramme[i] != NULL)
-        {
-            if (it_temp == (Lg_N_gramme + 1))
-            {
-                printf("%s/", n_gramme[i]);
-                it_temp = 0;
-            }
-            else
-            {
-                printf("%s/", n_gramme[i]);
-                it_temp++;
-            }
-        }
-    }
+            printf("(pos)/");
     printf("\n");
 }
 
 // sequence sous forme d'une chaine por le test
-// char *sequence_printInTab(void) {
+char *sequence_printInTab(void)
+{
+    debug_buffer[0] = '\0';
+    int length = 0;
 
-// }
+    for (int i = 0; i < Lg_N_gramme + 1; i++) {
+        const char *word = n_gramme[i];
+
+        if (strcmp(word, "") == 0)
+            word = "(null)";
+
+        length += strlen(word) + 1;
+
+        if (length > BUFFER_LENGTH)
+        {
+            fprintf(stderr, "Erreur : La taille du buffer est trop petite\n");
+            return NULL;
+        }
+
+        strcat(debug_buffer, word);
+        strcat(debug_buffer, "/");
+    }
+
+    return debug_buffer;
+}
