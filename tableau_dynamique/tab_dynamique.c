@@ -132,26 +132,3 @@ int rechercheElemTabD(TabDynamique *t, void *data, int (*compare)(void *, void *
 
     return 0;
 }
-
-void afficheTabD(TabDynamique *t)
-{
-    if (t == NULL || t->tab == NULL)
-    {
-        fprintf(stderr, "Erreur : tableau ou fonction d'affichage NULL\n");
-        return;
-    }
-
-    for (int i = 0; i < t->size; i++)
-    {
-        printf("[%d] ", i);
-        if (t->tab[i] != NULL)
-        {
-            printf("%s", (char *)t->tab[i]); // Cast explicite pour indiquer qu'il s'agit d'un char*
-        }
-        else
-        {
-            printf("(NULL)");
-        }
-        printf("\n");
-    }
-}
