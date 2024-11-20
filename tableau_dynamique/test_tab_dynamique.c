@@ -91,7 +91,7 @@ static void test_rechercheElemTabD()
 
 static void test_insertElemTabD()
 {
-    printf("Insertion :\n");
+    printf("Insertion (newElement en pos 1) :\n");
     TabDynamique *t = createTabD(2);
     addElemTabD(t, (void *)"element1");
     addElemTabD(t, (void *)"element2");
@@ -100,7 +100,7 @@ static void test_insertElemTabD()
     printf("%s %s %s %s\n", (char *)readTabD(t, 0), (char *)readTabD(t, 1), (char *)readTabD(t, 2), (char *)readTabD(t, 3));
     insertElemTabD(t, 1, (void *)"newElement");
     printf("%s %s %s %s %s\n", (char *)readTabD(t, 0), (char *)readTabD(t, 1), (char *)readTabD(t, 2), (char *)readTabD(t, 3), (char *)readTabD(t, 4));
-    printf("Test d'ajout d'élément réussi.\n");
+    printf("Test d'insertion d'élément réussi.\n");
 }
 
 int main()
