@@ -25,7 +25,7 @@ typedef struct
  * @param sizeMax Taille maximale initiale du tableau
  * @return tableau dynamique initialisé
  */
-TabDynamique createTabD(int sizeMax);
+TabDynamique *createTabD(int sizeMax);
 
 /**
  * @brief Libère la mémoire allouée pour le tableau dynamique.
@@ -42,7 +42,7 @@ int freeTabD(TabDynamique *t);
  *
  * Cette fonction réalloue la mémoire du tableau pour doubler sa capacité maximale
  * lorsque le tableau est plein. Elle met également à jour la taille maximale dans la structure.
- * 
+ *
  * @param t Pointeur vers la structure du tableau dynamique
  * @return 1 si l'allocation est réussie, 0 sinon
  */
@@ -101,19 +101,5 @@ int insertElemTabD(TabDynamique *t, int position, void *data);
  * @return L'index de l'élément trouvé, ou -1 si l'élément n'est pas trouvé
  */
 int rechercheElemTabD(TabDynamique *t, void *data, int (*compare)(void *, void *));
-
-/**
- * @brief La fonction afficheTabD vérifie d'abord que le tableau t et son tableau tab ne sont pas nuls.
- * 
- * Pour chaque élément dans le tableau dynamique, elle appelle printFunc pour afficher l'élément, 
- * en ajoutant un index pour le suivi.
- *
- * @param t Pointeur vers la structure du tableau dynamique
- * @param void (*printFunc)(void *) : Un pointeur vers une fonction qui prend un pointeur 
- * générique void * en argument et n'a pas de valeur de retour. 
- * Ce pointeur de fonction est utilisé pour définir comment chaque élément 
- * doit être affiché en fonction de son type.
- */
-void afficheTabD(TabDynamique *t);
 
 #endif

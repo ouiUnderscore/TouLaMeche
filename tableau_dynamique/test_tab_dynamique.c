@@ -17,62 +17,59 @@
 
 static void test_createTabD()
 {
-    TabDynamique t = createTabD(2);
-    assert(t.size == 0);
-    assert(t.sizeMax == 2);
-    assert(t.tab != NULL);
+    TabDynamique *t = createTabD(2);
+    assert(t->size == 0);
+    assert(t->sizeMax == 2);
+    assert(t->tab != NULL);
     printf("Test de création du tableau dynamique réussi.\n");
 }
 
 static void test_freeTabD()
 {
-    TabDynamique t = createTabD(2);
-    int result = freeTabD(&t);
+    TabDynamique *t = createTabD(2);
+    int result = freeTabD(t);
     assert(result == 1);
-    assert(t.tab == NULL);
-    assert(t.size == 0);
-    assert(t.sizeMax == 0);
     printf("Test de libération du tableau dynamique réussi.\n");
 }
 
 static void test_realloueTabD()
 {
-    TabDynamique t = createTabD(2);
-    addElemTabD(&t, (void *)"element1");
-    addElemTabD(&t, (void *)"element2");
-    int result = realloueTabD(&t);
+    TabDynamique *t = createTabD(2);
+    addElemTabD(t, (void *)"element1");
+    addElemTabD(t, (void *)"element2");
+    int result = realloueTabD(t);
     assert(result == 1);
-    assert(t.sizeMax == 4);
-    addElemTabD(&t, (void *)"element3");
+    assert(t->sizeMax == 4);
+    addElemTabD(t, (void *)"element3");
     printf("Test de réallocation du tableau dynamique réussi.\n");
 }
 
 static void test_addElemTabD()
 {
-    TabDynamique t = createTabD(2);
-    addElemTabD(&t, (void *)"element1");
-    addElemTabD(&t, (void *)"element2");
-    addElemTabD(&t, (void *)"element3"); // Devrait déclencher une réallocation
-    assert(t.size == 3);
-    assert(t.sizeMax >= 3);
+    TabDynamique *t = createTabD(2);
+    addElemTabD(t, (void *)"element1");
+    addElemTabD(t, (void *)"element2");
+    addElemTabD(t, (void *)"element3"); // Devrait déclencher une réallocation
+    assert(t->size == 3);
+    assert(t->sizeMax >= 3);
     printf("Test d'ajout d'élément réussi.\n");
 }
 
 static void test_readTabD()
 {
-    TabDynamique t = createTabD(2);
-    addElemTabD(&t, (void *)"element1");
-    addElemTabD(&t, (void *)"element2");
-    char *elem = (char *)readTabD(&t, 1);
+    TabDynamique *t = createTabD(2);
+    addElemTabD(t, (void *)"element1");
+    addElemTabD(t, (void *)"element2");
+    char *elem = (char *)readTabD(t, 1);
     assert(elem != NULL && strcmp(elem, "element2") == 0);
     printf("Test de lecture d'un élément réussi.\n");
 }
 
 static void test_fillTabD()
 {
-    TabDynamique t = createTabD(2);
-    fillTabD(&t, 0, (void *)"newElement");
-    char *elem = (char *)readTabD(&t, 0);
+    TabDynamique *t = createTabD(2);
+    fillTabD(t, 0, (void *)"newElement");
+    char *elem = (char *)readTabD(t, 0);
     assert(elem != NULL && strcmp(elem, "newElement") == 0);
     printf("Test d'écriture d'un élément réussi.\n");
 }
@@ -84,12 +81,26 @@ static int compare(void *elem1, void *elem2)
 
 static void test_rechercheElemTabD()
 {
-    TabDynamique t = createTabD(2);
-    addElemTabD(&t, (void *)"element1");
-    addElemTabD(&t, (void *)"element2");
-    int index = rechercheElemTabD(&t, (void *)"element2", compare);
+    TabDynamique *t = createTabD(2);
+    addElemTabD(t, (void *)"element1");
+    addElemTabD(t, (void *)"element2");
+    int index = rechercheElemTabD(t, (void *)"element2", compare);
     assert(index == 1);
     printf("Test de recherche d'élément réussi.\n");
+}
+
+static void test_insertElemTabD()
+{
+    printf("Insertion :\n");
+    TabDynamique *t = createTabD(2);
+    addElemTabD(t, (void *)"element1");
+    addElemTabD(t, (void *)"element2");
+    addElemTabD(t, (void *)"element3");
+    addElemTabD(t, (void *)"element4");
+    printf("%s %s %s %s\n", (char *)readTabD(t, 0), (char *)readTabD(t, 1), (char *)readTabD(t, 2), (char *)readTabD(t, 3));
+    insertElemTabD(t, 1, (void *)"newElement");
+    printf("%s %s %s %s %s\n", (char *)readTabD(t, 0), (char *)readTabD(t, 1), (char *)readTabD(t, 2), (char *)readTabD(t, 3), (char *)readTabD(t, 4));
+    printf("Test d'ajout d'élément réussi.\n");
 }
 
 int main()
@@ -101,6 +112,7 @@ int main()
     test_readTabD();
     test_fillTabD();
     test_rechercheElemTabD();
+    test_insertElemTabD();
     printf("\nTous les tests unitaires ont été passés avec succès.\n");
     return 0;
 }

@@ -2,19 +2,25 @@
 #include <stdlib.h>
 #include "tab_dynamique.h"
 
-TabDynamique createTabD(int sizeMax)
+TabDynamique *createTabD(int sizeMax)
 {
-    TabDynamique t;
-
-    t.tab = (void **)malloc(sizeMax * sizeof(void *));
-    if (t.tab == NULL)
+    TabDynamique *t = (TabDynamique *)malloc(sizeof(TabDynamique));
+    if (t == NULL)
     {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
         exit(EXIT_FAILURE);
     }
 
-    t.size = 0;
-    t.sizeMax = sizeMax;
+    t->tab = (void **)malloc(sizeMax * sizeof(void *));
+
+    if (t->tab == NULL)
+    {
+        fprintf(stderr, "Erreur d'allocation mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
+    t->size = 0;
+    t->sizeMax = sizeMax;
 
     return t;
 }
@@ -25,10 +31,7 @@ int freeTabD(TabDynamique *t)
         return 0;
 
     free(t->tab);
-
-    t->tab = NULL;
-    t->size = 0;
-    t->sizeMax = 0;
+    free(t);
 
     return 1;
 }
@@ -106,7 +109,7 @@ int insertElemTabD(TabDynamique *t, int position, void *data)
     if (position < 0 || position > t->sizeMax)
         return 0;
 
-    if (t->size + 1 == t->sizeMax)
+    if (t->size + 1 >= t->sizeMax)
         if (!realloueTabD(t))
         {
             // Si la réallocation échoue
@@ -114,12 +117,11 @@ int insertElemTabD(TabDynamique *t, int position, void *data)
             return 0;
         }
 
-    t->size++;
-
-    for (int i = position + 1; i < t->size; i++)
-        t->tab[i] = t->tab[i - 1];
+    for (int i = t->size - 1; i >= position; i--)
+        t->tab[i + 1] = t->tab[i];
 
     t->tab[position] = data;
+    t->size++;
 
     return 1;
 }
