@@ -59,7 +59,7 @@ int realloueTabD(TabDynamique *t)
 
 void *readTabD(TabDynamique *t, int position)
 {
-    if (position >= 0 && position < t->sizeMax)
+    if (position >= 0 && position < t->size)
         return t->tab[position];
     else
         return NULL;

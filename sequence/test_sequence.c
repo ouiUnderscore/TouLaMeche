@@ -17,7 +17,7 @@
 
 #define BUFFER_LENGTH 1024
 
-static void test_initialization(struct strhash_table *ht)
+void test_initialization(struct strhash_table *ht)
 {
     assert(ht != NULL);
     if (ht == NULL)
@@ -30,7 +30,7 @@ static void test_initialization(struct strhash_table *ht)
     printf("Test d'initialisation réussi : La table de hachage et la séquence ont été correctement initialisées.\n");
 }
 
-static void assertEquals(const char *test, const char *attendu)
+void assertEquals(const char *test, const char *attendu)
 {
     if (test == NULL && attendu != NULL)
     {
@@ -49,7 +49,7 @@ static void assertEquals(const char *test, const char *attendu)
     }
 }
 
-static void test_addWord(const char *mot, struct strhash_table *ht, const char *attendu)
+void test_addWord(const char *mot, struct strhash_table *ht, const char *attendu)
 {
     sequence_addWord(mot, ht);
     sequence_progress();
@@ -60,7 +60,7 @@ static void test_addWord(const char *mot, struct strhash_table *ht, const char *
     printf("Test d'ajout de mot réussi : Le mot '%s' a été correctement ajouté. Résultat : %s\n", mot, result);
 }
 
-static void test_iterator(struct strhash_table *ht, const char *expected_output)
+void test_iterator(struct strhash_table *ht, const char *expected_output)
 {
     sequence_itStart();
     char result[BUFFER_LENGTH] = "";

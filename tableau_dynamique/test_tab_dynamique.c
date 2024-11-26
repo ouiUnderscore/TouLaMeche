@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "tab_dynamique.h"
 
-static void test_createTabD()
+void test_createTabD()
 {
     TabDynamique *t = createTabD(2);
     assert(t->size == 0);
@@ -24,7 +24,7 @@ static void test_createTabD()
     printf("Test de création du tableau dynamique réussi.\n");
 }
 
-static void test_freeTabD()
+void test_freeTabD()
 {
     TabDynamique *t = createTabD(2);
     int result = freeTabD(t);
@@ -32,7 +32,7 @@ static void test_freeTabD()
     printf("Test de libération du tableau dynamique réussi.\n");
 }
 
-static void test_realloueTabD()
+void test_realloueTabD()
 {
     TabDynamique *t = createTabD(2);
     addElemTabD(t, (void *)"element1");
@@ -44,7 +44,7 @@ static void test_realloueTabD()
     printf("Test de réallocation du tableau dynamique réussi.\n");
 }
 
-static void test_addElemTabD()
+void test_addElemTabD()
 {
     TabDynamique *t = createTabD(2);
     addElemTabD(t, (void *)"element1");
@@ -55,7 +55,7 @@ static void test_addElemTabD()
     printf("Test d'ajout d'élément réussi.\n");
 }
 
-static void test_readTabD()
+void test_readTabD()
 {
     TabDynamique *t = createTabD(2);
     addElemTabD(t, (void *)"element1");
@@ -65,7 +65,7 @@ static void test_readTabD()
     printf("Test de lecture d'un élément réussi.\n");
 }
 
-static void test_fillTabD()
+void test_fillTabD()
 {
     TabDynamique *t = createTabD(2);
     fillTabD(t, 0, (void *)"newElement");
@@ -79,7 +79,7 @@ static int compare(void *elem1, void *elem2)
     return strcmp((char *)elem1, (char *)elem2);
 }
 
-static void test_rechercheElemTabD()
+void test_rechercheElemTabD()
 {
     TabDynamique *t = createTabD(2);
     addElemTabD(t, (void *)"element1");
@@ -89,7 +89,7 @@ static void test_rechercheElemTabD()
     printf("Test de recherche d'élément réussi.\n");
 }
 
-static void test_insertElemTabD()
+void test_insertElemTabD()
 {
     printf("Insertion (newElement en pos 1) :\n");
     TabDynamique *t = createTabD(2);

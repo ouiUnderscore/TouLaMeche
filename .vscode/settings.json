@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "sequence.h": "c",
-        "functional": "c"
+        "functional": "c",
+        "tab_dynamique.h": "c",
+        "arbre_pred.h": "c",
+        "stdio.h": "c",
+        "hash.h": "c"
     }
 }
