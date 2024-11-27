@@ -7,36 +7,14 @@
 #define COLOR_RED "\033[31m"
 #define COLOR_ORANGE "\033[33m"
 
-void afficherArbre2(TreeNode *node, int niveau)
-{
-    if (node == NULL)
-        return;
-
-    for (int i = 0; i < niveau; i++)
-        printf("  ");
-    printf("- %s (occurrences : %d)\n", node->mot, node->nb_occurrences);
-
-    for (int i = 0; i < node->fils->size; i++)
-    {
-        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
-        afficherArbre2(enfant, niveau + 1);
-    }
-}
-
-void debugArbre(TreeNode *racine)
-{
-    printf("Affichage complet de l'arbre :\n");
-    afficherArbre2(racine, 0);
-}
-
-void readKeybord(FILE *fichierSortie, TreeNode *racine, struct strhash_table *ht)
+void readKeybord(TreeNode *racine, struct strhash_table *ht)
 {
     char c;
     char buffer[256];
     int i = 0;
     int predictionMode = 0;
 
-    while ((c = getchar()) != CHAR_FIN)
+    while ((c = getchar()) != EOF)
     {
         int est_separateur = 0;
         for (int j = 0; j < strlen(SEPARATEURS); j++)
@@ -56,7 +34,6 @@ void readKeybord(FILE *fichierSortie, TreeNode *racine, struct strhash_table *ht
                 sequence_addWord(buffer, ht);
                 sequence_progress();
                 searchOrCreateTreeNode();
-                fprintf(fichierSortie, "%s\n", buffer);
 
                 i = 0;
             }
@@ -104,4 +81,35 @@ void readKeybord(FILE *fichierSortie, TreeNode *racine, struct strhash_table *ht
     }
 
     printf(COLOR_ORANGE "Fin de saisie.\n" COLOR_WHITE);
+}
+
+// Fonction pour afficher les tabulations en fonction du niveau
+void printTabs(FILE *fichier, int level)
+{
+    for (int i = 0; i < level; i++)
+        fprintf(fichier, "\t");
+}
+
+void saveTreeNode(FILE *fichier, TreeNode *node, int level)
+{
+    if (node == NULL)
+        return;
+
+    printTabs(fichier, level);
+    fprintf(fichier, "[\n");
+
+    printTabs(fichier, level + 1);
+    if (node->fils->size == 0)
+        fprintf(fichier, "[ p=%d --> %s]\n", node->nb_occurrences, node->mot);
+    else
+        fprintf(fichier, "%s\n", node->mot);
+
+    for (int i = 0; i < node->fils->size; i++)
+    {
+        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
+        saveTreeNode(fichier, enfant, level + 1);
+    }
+
+    printTabs(fichier, level);
+    fprintf(fichier, "]\n");
 }

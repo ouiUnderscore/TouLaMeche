@@ -17,11 +17,10 @@
 #define BUFFER_SIZE 256
 
 // Fonction pour lire un texte depuis l'entrée standard
-void readKeybord();
-// void readKeybord(FILE *fichierSortie, TreeNode *racine, struct strhash_table *ht);
+void readKeybord(TreeNode *racine, struct strhash_table *ht);
 
 // Fonction pour sauvegarder l'arbre dans un fichier
-void saveTreeNode(FILE *fichier, TreeNode *racine, int profondeur);
+void saveTreeNode(FILE *fichier, TreeNode *node, int level);
 
 // Fonction pour charger l'arbre depuis un fichier
 TreeNode *loadTreeNode(FILE *fichier);
