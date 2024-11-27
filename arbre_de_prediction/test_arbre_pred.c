@@ -39,9 +39,9 @@ void test_initArbre()
 {
     printf(COLOR_ORANGE "[TEST] Initialisation de l'arbre\n" COLOR_WHITE);
     initArbre();
-    assert(strcmp(t.mot, "") == 0);
-    assert(t.nb_occurrences == 0);
-    assert(t.fils != NULL);
+    assert(strcmp(root.mot, "") == 0);
+    assert(root.nb_occurrences == 0);
+    assert(root.fils != NULL);
     printf(COLOR_GREEN "Test d'initialisation réussi : Le TreeNode a été initialisé correctement.\n" COLOR_WHITE);
 }
 
@@ -67,7 +67,7 @@ void test_searchOrCreateTreeNode()
     printf(COLOR_GREEN "Séquence mot1 -> mot2 -> mot3 ajoutée avec succès.\n" COLOR_WHITE);
 
     // Vérification des enfants
-    TreeNode *child1 = readTabD(t.fils, 0);
+    TreeNode *child1 = readTabD(root.fils, 0);
     assert(child1 != NULL && strcmp(child1->mot, "mot1") == 0);
     TreeNode *child2 = readTabD(child1->fils, 0);
     assert(child2 != NULL && strcmp(child2->mot, "mot2") == 0);
@@ -89,7 +89,7 @@ void test_searchOrCreateTreeNode()
 
     // Affichage de l'arbre
     printf(COLOR_WHITE "Arbre après ajout des séquences :\n" COLOR_WHITE);
-    afficherArbre(&t, 0);
+    afficherArbre(&root, 0);
 
     strhash_free(ht);
     printf(COLOR_GREEN "Test de recherche et création avec plusieurs branches réussi.\n" COLOR_WHITE);
@@ -137,7 +137,7 @@ void test_searchOrCreateLeaf()
     printf(COLOR_GREEN "Ajout d'un autre mot '%s' réussi.\n" COLOR_WHITE, anotherWord);
 
     printf(COLOR_WHITE "Arbre après les ajouts :\n" COLOR_WHITE);
-    afficherArbre(&t, 0);
+    afficherArbre(&root, 0);
     strhash_free(ht);
     printf(COLOR_GREEN "Test de searchOrCreateLeaf terminé avec succès.\n" COLOR_WHITE);
 }
@@ -172,7 +172,7 @@ void test_maxOccurrence()
     assert(strcmp(maxNode->mot, "mot_suivant3") == 0);
     assert(maxNode->nb_occurrences == 3);
 
-    afficherArbre(&t, 0);
+    afficherArbre(&root, 0);
     printf(COLOR_GREEN "Test réussi : Le mot avec le maximum d'occurrences est '%s' (%d occurrences).\n" COLOR_WHITE, maxNode->mot, maxNode->nb_occurrences);
     strhash_free(ht);
 }

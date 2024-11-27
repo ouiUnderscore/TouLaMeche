@@ -5,6 +5,8 @@
         "tab_dynamique.h": "c",
         "arbre_pred.h": "c",
         "stdio.h": "c",
-        "hash.h": "c"
+        "hash.h": "c",
+        "string.h": "c",
+        "entree_sortie.h": "c"
     }
 }

@@ -11,22 +11,21 @@
 #include "arbre_pred.h"
 #include "../tableau_dynamique/tab_dynamique.h"
 #include "../sequence/sequence.h"
-#include "../sequence/hash.h"
 
-TreeNode t;
+TreeNode root;
 
 void initArbre()
 {
     // Racine = mot vide
-    t.mot = strdup("");
-    t.nb_occurrences = 0;
-    t.fils = createTabD(SIZE_TABD);
+    root.mot = strdup("");
+    root.nb_occurrences = 0;
+    root.fils = createTabD(SIZE_TABD);
 }
 
 TreeNode *searchOrCreateTreeNode()
 {
     sequence_itStart();
-    TreeNode *currentTree = &t;
+    TreeNode *currentTree = &root;
 
     while (sequence_itHasNext())
     {
@@ -50,7 +49,7 @@ TreeNode *searchOrCreateTreeNode()
             foundNode = (TreeNode *)malloc(sizeof(TreeNode));
             if (!foundNode)
             {
-                perror("Erreur d'allocation mémoire pour un nœud de l'arbre");
+                perror("Erreur d'allocation mémoire pour un noeud de l'arbre");
                 exit(EXIT_FAILURE);
             }
             foundNode->mot = strdup(currentWord);
@@ -89,14 +88,14 @@ TreeNode *searchOrCreateLeaf(TreeNode *finalNode, const char *word)
     TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
     if (!newNode)
     {
-        perror("Erreur d'allocation mémoire pour un nœud de l'arbre");
+        perror("Erreur d'allocation mémoire pour un noeud de l'arbre");
         exit(EXIT_FAILURE);
     }
     newNode->mot = strdup(word);
     newNode->nb_occurrences = 1;
     newNode->fils = createTabD(SIZE_TABD);
 
-    // Ajoute le nouveau nœud aux fils du nœud final
+    // Ajoute le nouveau noeud aux fils du noeud final
     if (!addElemTabD(finalNode->fils, newNode))
     {
         perror("Erreur d'ajout dans le tableau dynamique");
@@ -118,8 +117,10 @@ TreeNode *maxOccurrence(TreeNode *finalNode)
     {
         TreeNode *enfant = readTabD(finalNode->fils, i);
         if (enfant->nb_occurrences > maxOccur)
+        {
             maxOccur = enfant->nb_occurrences;
-        maxNode = enfant;
+            maxNode = enfant;
+        }
     }
 
     return maxNode;
