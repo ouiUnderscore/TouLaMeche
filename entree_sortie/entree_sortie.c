@@ -7,10 +7,13 @@
 #define COLOR_RED "\033[31m"
 #define COLOR_ORANGE "\033[33m"
 
+#define BUFFER_SIZE_LINE 1024
+#define BUFFER_SIZE_WORD 256
+
 void readKeybord(TreeNode *racine, struct strhash_table *ht)
 {
     char c;
-    char buffer[256];
+    char buffer[BUFFER_SIZE_WORD];
     int i = 0;
     int predictionMode = 0;
 
@@ -51,8 +54,8 @@ void readKeybord(TreeNode *racine, struct strhash_table *ht)
 
                 printf(COLOR_ORANGE "Mot prédit : " COLOR_WHITE "%s\n", motPrevu->mot);
                 printf(COLOR_ORANGE "Acceptez le mot (Entrée) ou saisissez un autre mot : " COLOR_WHITE);
-                char userInput[256];
-                fgets(userInput, 256, stdin);
+                char userInput[BUFFER_SIZE_WORD];
+                fgets(userInput, BUFFER_SIZE_WORD, stdin);
 
                 // Mot accepté
                 if (userInput[0] == '\n')
@@ -68,7 +71,7 @@ void readKeybord(TreeNode *racine, struct strhash_table *ht)
                 predictionMode = 0;
             }
         }
-        else if (i < 255)
+        else if (i < BUFFER_SIZE_WORD - 1)
             buffer[i++] = c;
         else
         {
@@ -100,7 +103,7 @@ void saveTreeNode(FILE *fichier, TreeNode *node, int level)
 
     printTabs(fichier, level + 1);
     if (node->fils->size == 0)
-        fprintf(fichier, "[ p=%d --> %s]\n", node->nb_occurrences, node->mot);
+        fprintf(fichier, "[ p=%d --> %s ]\n", node->nb_occurrences, node->mot);
     else
         fprintf(fichier, "%s\n", node->mot);
 
@@ -112,4 +115,72 @@ void saveTreeNode(FILE *fichier, TreeNode *node, int level)
 
     printTabs(fichier, level);
     fprintf(fichier, "]\n");
+}
+
+void loadTreeNode(FILE *fichier, TreeNode *node)
+{
+    char line[BUFFER_SIZE];
+    int level = -1;
+    char buffer[Lg_N_gramme][BUFFER_SIZE_WORD];
+    struct strhash_table *ht = strhash_create(Lg_N_gramme);
+    sequence_initialize(ht);
+
+    while (fgets(line, sizeof(line), fichier))
+    {
+        // Retirer le '\n' et les tabs de la ligne
+        line[strcspn(line, "\n")] = '\0';
+        while (line[0] == '\t')
+            memmove(line, line + 1, strlen(line));
+
+        if (strlen(line) == 1 && line[0] == '[')
+            level++;
+        else if (strlen(line) == 1 && line[0] == ']')
+            level--;
+        else // Si on est sur une ligne avec un mot
+        {
+            const char *content = line;
+            if (level == Lg_N_gramme)
+            {
+                char mot[256];
+                int occurrences;
+                sscanf(content, "[ p=%d --> %255[^]]]", &occurrences, mot);
+                strncpy(buffer[level], mot, BUFFER_SIZE_WORD - 1);
+
+                sequence_initialize(ht);
+                sequence_addWord(buffer[level - 2], ht);
+                sequence_progress();
+                sequence_addWord(buffer[level - 1], ht);
+                sequence_progress();
+                sequence_addWord(buffer[level], ht);
+                sequence_progress();
+
+                for (int i = 0; i < occurrences; i++)
+                    searchOrCreateTreeNode();
+            }
+            else
+            {
+                if (strlen(content) > 0)
+                    strncpy(buffer[level], content, BUFFER_SIZE_WORD - 1);
+                else
+                    strncpy(buffer[level], "", BUFFER_SIZE_WORD - 1);
+            }
+        }
+    }
+}
+
+void afficherArbre(TreeNode *node, int niveau)
+{
+    if (node == NULL)
+        return;
+
+    for (int i = 0; i < niveau; i++)
+        printf("  ");
+
+    printf("- %s (occurrences : %d)\n", node->mot, node->nb_occurrences);
+    
+    for (int i = 0; i < node->fils->size; i++)
+    {
+        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
+        afficherArbre(enfant, niveau + 1);
+    }
 }

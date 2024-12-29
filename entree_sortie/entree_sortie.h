@@ -23,6 +23,8 @@ void readKeybord(TreeNode *racine, struct strhash_table *ht);
 void saveTreeNode(FILE *fichier, TreeNode *node, int level);
 
 // Fonction pour charger l'arbre depuis un fichier
-TreeNode *loadTreeNode(FILE *fichier);
+void loadTreeNode(FILE *fichier, TreeNode *node);
 
-#endif
+void afficherArbre(TreeNode *node, int niveau);
+
+#endif  
