@@ -1,1 +1,3 @@
 cc interface.c -o test -Wall `pkg-config --cflags --libs gtk+-3.0`
+
+cc interface.c ../arbre_de_prediction/arbre_pred.c ../sequence/sequence.c ../sequence/hash_x86_64.o ../sequence/list_x86_64.o ../tableau_dynamique/tab_dynamique.c -o TouLaMeche -Wall `pkg-config --cflags --libs gtk+-3.0` -lm

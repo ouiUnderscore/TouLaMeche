@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../arbre_de_prediction/arbre_pred.h"
+#include "../sequence/sequence.h"
+#include "../sequence/hash.h"
+#include "../entree_sortie/entree_sortie.h"
+
 #define UI_FILE "interface.glade"
 
 GtkBuilder *builder_global;
@@ -11,6 +16,7 @@ GtkWidget *quit_window;
 GtkWidget *about_window;
 GtkWidget *button_quit_without_saving;
 GtkWidget *button_ok_about_window;
+struct strhash_table *ht;
 
 int initialize_main_window();
 void initialize_quit_window();
@@ -20,7 +26,7 @@ void on_quit_menu_item_activate();
 void on_ok_button_about_activate();
 
 #define COLOR_RED "\033[31m"
-#define COLOR_ORANGE "\033[38;5;214m"  // Code ANSI pour une couleur orange approximative
+#define COLOR_ORANGE "\033[38;5;214m" // Code ANSI pour une couleur orange approximative
 #define COLOR_RESET "\033[0m"
 
 int initialize_main_window()
@@ -99,7 +105,8 @@ void on_quit_menu_item_activate()
     gtk_widget_show_all(quit_window);
 }
 
-void on_ok_button_about_activate() {
+void on_ok_button_about_activate()
+{
     printf(COLOR_ORANGE "Log : Bouton Ok\n" COLOR_RESET);
     gtk_widget_hide(about_window);
 }
@@ -119,8 +126,9 @@ void on_about_menu_item_activate()
 
 void on_text_buffer_changed(GtkTextBuffer *buffer, gpointer user_data)
 {
-    static int previous_length = 0; // Stocke la longueur précédente du texte
+    static int previous_length = 0;        // Stocke la longueur précédente du texte
     static int previous_was_separator = 0; // Indique si le dernier caractère était un séparateur
+    static int count = 0;
     GtkTextIter start, end;
     char *text;
 
@@ -135,34 +143,57 @@ void on_text_buffer_changed(GtkTextBuffer *buffer, gpointer user_data)
         const char *last_char = g_utf8_offset_to_pointer(text, current_length - 1);
 
         // Liste des caractères séparateurs (espace, ponctuation, etc.)
-        const char *separators = " \t.,;!?()[]{}:<>\"";
+        const char *separators = " \t\n.,;!?()[]{}:<>\"";
 
         // Vérifier si le dernier caractère est un séparateur
         if (strchr(separators, *last_char))
         {
             if (!previous_was_separator)
             {
-                char **words = g_strsplit_set(text, " \t\n.,;!?()[]{}:<>\"", -1);
+                char **words = g_strsplit_set(text, separators, -1);
                 int num_words = g_strv_length(words);
 
                 // Vérifier qu'il y a un mot avant le séparateur
                 if (num_words > 1)
                 {
                     gchar *last_word = words[num_words - 2];
-                    printf("Event : Dernier mot : %s\n", last_word);
 
-                    GtkTextBuffer *prediction_buffer = GTK_TEXT_BUFFER(gtk_builder_get_object(builder_global, "prediction_buffer_main_window"));
-                    if (!prediction_buffer)
+                    if (strlen(last_word) > 0)
                     {
-                        printf(COLOR_RED "Erreur : Le buffer prediction_buffer_main_window n'a pas été trouvé\n" COLOR_RESET);
-                        return;
-                    } 
+                        printf("Event : Dernier mot : %s\n", last_word);
 
-                    int len = strlen(last_word) + 15;
-                    char res[len];
-                    strcpy(res, "Prediction : ");
-                    strcat(res, last_word);
-                    gtk_text_buffer_set_text(prediction_buffer, res, -1);
+                        GtkTextBuffer *prediction_buffer = GTK_TEXT_BUFFER(gtk_builder_get_object(builder_global, "prediction_buffer_main_window"));
+                        if (!prediction_buffer)
+                        {
+                            printf(COLOR_RED "Erreur : Le buffer prediction_buffer_main_window n'a pas été trouvé\n" COLOR_RESET);
+                            return;
+                        }
+
+                        sequence_addWord(last_word, ht);
+                        sequence_progress();
+                        searchOrCreateTreeNode();
+                        count++;
+
+                        if (count > 3)
+                        {
+                            TreeNode *noeudFinal = searchOrCreateLeaf(&root, last_word);
+                            TreeNode *motPrevu = maxOccurrence(noeudFinal);
+                            if (motPrevu == NULL)
+                            {
+                                printf("Event : Aucun mot prédit trouvé.\n");
+                                gtk_text_buffer_set_text(prediction_buffer, "", 0);
+                            }
+                            else
+                            {
+                                printf("Event : Mot prédit : %s\n", motPrevu->mot);
+                                int predLen = strlen(motPrevu->mot) + 15;
+                                char resPred[predLen];
+                                strcpy(resPred, "Prédiction : ");
+                                strcat(resPred, motPrevu->mot);
+                                gtk_text_buffer_set_text(prediction_buffer, resPred, -1);
+                            }
+                        }
+                    }
                 }
 
                 g_strfreev(words);
@@ -183,12 +214,16 @@ int main(int argc, char *argv[])
     GtkWidget *about_menu_item;
     GtkTextBuffer *buffer;
 
+    // Initialisation
+    initArbre();
+    ht = strhash_create(Lg_N_gramme);
+    sequence_initialize(ht);
     gtk_init(&argc, &argv);
 
     if (!initialize_main_window())
     {
         printf(COLOR_RED "Erreur : La fenêtre main_window n'est pas initialisée\n" COLOR_RESET);
-        return 1; 
+        return 1;
     }
 
     // Trouvez et connectez le menu Quit
@@ -222,7 +257,7 @@ int main(int argc, char *argv[])
 
     // Affichez la fenêtre principale
     gtk_widget_show_all(main_window);
-    
+
     gtk_main();
 
     return 0;

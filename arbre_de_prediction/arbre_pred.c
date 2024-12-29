@@ -125,3 +125,20 @@ TreeNode *maxOccurrence(TreeNode *finalNode)
 
     return maxNode;
 }
+
+void afficherArbre(TreeNode *node, int niveau)
+{
+    if (node == NULL)
+        return;
+
+    for (int i = 0; i < niveau; i++)
+        printf("  ");
+
+    printf("- %s (occurrences : %d)\n", node->mot, node->nb_occurrences);
+    
+    for (int i = 0; i < node->fils->size; i++)
+    {
+        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
+        afficherArbre(enfant, niveau + 1);
+    }
+}
