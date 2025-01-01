@@ -18,6 +18,9 @@ GtkWidget *button_quit_without_saving;
 GtkWidget *button_ok_about_window;
 GtkWidget *button_cancel_quit_window;
 GtkWidget *quit_window_file_button;
+GtkWidget *save_database_menu_item;
+GtkWidget *open_database_menu_item;
+GtkWidget *quit_window_database_button;
 GtkTextBuffer *bufferTextEntry;
 
 struct strhash_table *ht;
@@ -32,7 +35,9 @@ void on_ok_button_about_activate();
 void on_cancel_button_quit_activate();
 int on_save_file_menu_item_activate();
 void on_file_button_clicked();
-int on_open_file_menu_item_activate();
+void on_open_file_menu_item_activate();
+int on_save_database_menu_item_activate();
+void on_database_button_clicked();
 
 #define COLOR_RED "\033[31m"
 #define COLOR_ORANGE "\033[38;5;214m" // Code ANSI pour une couleur orange approximative
@@ -89,6 +94,14 @@ void initialize_quit_window()
         return;
     }
     g_signal_connect(quit_window_file_button, "clicked", G_CALLBACK(on_file_button_clicked), NULL);
+
+    quit_window_database_button = GTK_WIDGET(gtk_builder_get_object(builder_global, "quit_window_database_button"));
+    if (!quit_window_database_button)
+    {
+        printf(COLOR_RED "Erreur : Impossible de trouver le widget 'quit_window_database_button'\n" COLOR_RESET);
+        return;
+    }
+    g_signal_connect(quit_window_database_button, "clicked", G_CALLBACK(on_database_button_clicked), NULL);
 }
 
 void on_file_button_clicked()
@@ -347,7 +360,7 @@ int on_save_file_menu_item_activate()
     return 1;
 }
 
-int on_open_file_menu_item_activate()
+void on_open_file_menu_item_activate()
 {
     printf(COLOR_ORANGE "Log : Menu item open file\n" COLOR_RESET);
 
@@ -372,7 +385,7 @@ int on_open_file_menu_item_activate()
     if (response == GTK_RESPONSE_CANCEL)
     {
         gtk_widget_destroy(dialog);
-        return 0;
+        return;
     }
 
     // Si l'utilisateur clique sur "Open"
@@ -424,7 +437,7 @@ int on_open_file_menu_item_activate()
                     pos_last_word = 0;
                     entryWordCount++;
                 }
-                // Si non concatene le dernier caractère avec le mot 
+                // Si non concatene le dernier caractère avec le mot
                 else if (!strchr(separators, content[i]))
                 {
                     last_word[pos_last_word++] = content[i];
@@ -442,8 +455,97 @@ int on_open_file_menu_item_activate()
 
     g_free(filename);
     gtk_widget_destroy(dialog);
+}
+
+int on_save_database_menu_item_activate()
+{
+    printf(COLOR_ORANGE "Log : Menu item save database\n" COLOR_RESET);
+
+    const char *extension = ".tlmdb";
+
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new("Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
+
+    // Ajouter un filtre n'afficher que les fichier au bon format
+    GtkFileFilter *filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.tlmdb");
+    gtk_file_filter_set_name(filter, "Text Files (*.tlmdb)");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+    int response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // Si l'utilisateur clique sur "Cancel"
+    if (response == GTK_RESPONSE_CANCEL)
+    {
+        gtk_widget_destroy(dialog);
+        return 0;
+    }
+
+    // Bouton save
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+        // Si le fichier n'a pas d'extension, l'ajoute
+        if (!strchr(filename, '.'))
+        {
+            char *new_filename = g_strconcat(filename, extension, NULL);
+            g_free(filename);
+            filename = new_filename;
+        }
+        // Si l'extension est incorrecte
+        else if (!g_str_has_suffix(filename, extension))
+        {
+            printf(COLOR_RED "Erreur : L'extension du fichier doit être %s\n" COLOR_RESET, extension);
+            GtkWidget *error_dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Erreur : L'extension du fichier doit être .txt.");
+            gtk_dialog_run(GTK_DIALOG(error_dialog));
+            gtk_widget_destroy(error_dialog);
+            g_free(filename);
+            gtk_widget_destroy(dialog);
+            return 0;
+        }
+
+        // Vérification si le fichier existe déjà
+        if (g_file_test(filename, G_FILE_TEST_EXISTS))
+        {
+            GtkWidget *confirm_dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_WARNING, GTK_BUTTONS_YES_NO, "Le fichier \"%s\" existe déjà.\nVoulez-vous le remplacer ?", filename);
+
+            // Si l'utilisateur dit non
+            if (gtk_dialog_run(GTK_DIALOG(confirm_dialog)) != GTK_RESPONSE_YES)
+            {
+                gtk_widget_destroy(confirm_dialog);
+                g_free(filename);
+                gtk_widget_destroy(dialog);
+                return 0;
+            }
+
+            gtk_widget_destroy(confirm_dialog);
+        }
+
+        FILE *f = fopen(filename, "w");
+        if (f == NULL) {
+            printf(COLOR_RED "Erreur : Impossible d'écrire dans le fichier %s\n" COLOR_RESET, filename);
+            return 0;
+        }
+        saveTreeNode(f, &root, 0);
+        fclose(f);
+
+        g_free(filename);
+    }
+
+    gtk_widget_destroy(dialog);
 
     return 1;
+}
+
+void on_database_button_clicked()
+{
+    printf(COLOR_ORANGE "Log : Bouton database\n" COLOR_RESET);
+    if (on_save_database_menu_item_activate() == 1)
+        gtk_main_quit();
+    else
+        gtk_widget_hide(quit_window);
+
+    afficherArbre(&root, 0);
 }
 
 int main(int argc, char *argv[])
@@ -505,6 +607,14 @@ int main(int argc, char *argv[])
         return 1;
     }
     g_signal_connect(open_file_menu_item, "activate", G_CALLBACK(on_open_file_menu_item_activate), NULL);
+
+    save_database_menu_item = GTK_WIDGET(gtk_builder_get_object(builder_global, "save_database_menu_item"));
+    if (!save_database_menu_item)
+    {
+        printf(COLOR_RED "Erreur : Impossible de trouver le widget 'save_database_menu_item'\n" COLOR_RESET);
+        return 1;
+    }
+    g_signal_connect(save_database_menu_item, "activate", G_CALLBACK(on_save_database_menu_item_activate), NULL);
 
     gtk_window_set_default_size(GTK_WINDOW(main_window), 600, 400);
     gtk_widget_show_all(main_window);

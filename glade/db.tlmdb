@@ -1,0 +1,60 @@
+[
+	
+	[
+		
+		[
+			
+			[
+				[ p=1 --> je ]
+			]
+		]
+		[
+			je
+			[
+				[ p=1 --> suis ]
+			]
+		]
+	]
+	[
+		je
+		[
+			suis
+			[
+				[ p=1 --> emilie ]
+			]
+		]
+	]
+	[
+		suis
+		[
+			emilie
+			[
+				[ p=1 --> c'est ]
+			]
+		]
+	]
+	[
+		c'est
+		[
+			cool
+			[
+				[ p=1 --> youpi ]
+			]
+		]
+	]
+	[
+		emilie
+		[
+			c'est
+			[
+				[ p=1 --> cool ]
+			]
+		]
+	]
+	[
+		[ p=1 --> cool ]
+	]
+	[
+		[ p=1 --> youpi ]
+	]
+]
