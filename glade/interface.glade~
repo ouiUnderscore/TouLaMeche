@@ -83,6 +83,7 @@ Développé par Emilie Zammit.</property>
     <property name="can-focus">False</property>
     <property name="stock">gtk-edit</property>
   </object>
+  <object class="GtkTextBuffer" id="prediction_buffer_main_window"/>
   <object class="GtkWindow" id="main_window">
     <property name="can-focus">False</property>
     <child>
@@ -114,7 +115,7 @@ Développé par Emilie Zammit.</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="save_file_menu_item">
                         <property name="label" translatable="yes">Save file</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -209,6 +210,7 @@ Développé par Emilie Zammit.</property>
                 <property name="can-focus">True</property>
                 <property name="editable">False</property>
                 <property name="cursor-visible">False</property>
+                <property name="buffer">prediction_buffer_main_window</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -300,7 +302,7 @@ Développé par Emilie Zammit.</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="quit_windows_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
