@@ -31,6 +31,7 @@ void on_ok_button_about_activate();
 void on_cancel_button_quit_activate();
 int on_save_file_menu_item_activate();
 void on_file_button_clicked();
+int on_open_file_menu_item_activate();
 
 #define COLOR_RED "\033[31m"
 #define COLOR_ORANGE "\033[38;5;214m" // Code ANSI pour une couleur orange approximative
@@ -70,6 +71,7 @@ void initialize_quit_window()
         printf(COLOR_RED "Erreur : Impossible de trouver le widget 'button_quit_without_saving'\n" COLOR_RESET);
         return;
     }
+    g_signal_connect(button_quit_without_saving, "clicked", G_CALLBACK(on_quit_without_saving_button_activate), NULL);
 
     button_cancel_quit_window = GTK_WIDGET(gtk_builder_get_object(builder_global, "quit_windows_cancel_button"));
     if (!button_cancel_quit_window)
@@ -77,6 +79,7 @@ void initialize_quit_window()
         printf(COLOR_RED "Erreur : Impossible de trouver le widget 'button_cancel_quit_window'\n" COLOR_RESET);
         return;
     }
+    g_signal_connect(button_cancel_quit_window, "clicked", G_CALLBACK(on_cancel_button_quit_activate), NULL);
 
     quit_window_file_button = GTK_WIDGET(gtk_builder_get_object(builder_global, "quit_window_file_button"));
     if (!quit_window_file_button)
@@ -84,9 +87,6 @@ void initialize_quit_window()
         printf(COLOR_RED "Erreur : Impossible de trouver le widget 'quit_window_file_button'\n" COLOR_RESET);
         return;
     }
-
-    g_signal_connect(button_quit_without_saving, "clicked", G_CALLBACK(on_quit_without_saving_button_activate), NULL);
-    g_signal_connect(button_cancel_quit_window, "clicked", G_CALLBACK(on_cancel_button_quit_activate), NULL);
     g_signal_connect(quit_window_file_button, "clicked", G_CALLBACK(on_file_button_clicked), NULL);
 }
 
@@ -267,7 +267,7 @@ int on_save_file_menu_item_activate()
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new("Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
 
-    // Ajouter un filtre n'afficher que les fichier au bon
+    // Ajouter un filtre n'afficher que les fichier au bon format
     GtkFileFilter *filter = gtk_file_filter_new();
     gtk_file_filter_add_pattern(filter, "*.txt");
     gtk_file_filter_set_name(filter, "Text Files (*.txt)");
@@ -347,11 +347,81 @@ int on_save_file_menu_item_activate()
     return 1;
 }
 
+int on_open_file_menu_item_activate()
+{
+    printf(COLOR_ORANGE "Log : Menu item open file\n" COLOR_RESET);
+
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new("Open File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
+
+    // Ajouter un filtre n'afficher que les fichier au bon format
+    GtkFileFilter *filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.txt");
+    gtk_file_filter_set_name(filter, "Text Files (*.txt)");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+    int response = gtk_dialog_run(GTK_DIALOG(dialog));
+    char *content = 0;
+    char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+    // Si l'utilisateur clique sur "Cancel"
+    if (response == GTK_RESPONSE_CANCEL)
+    {
+        gtk_widget_destroy(dialog);
+        return 0;
+    }
+
+    // Si l'utilisateur clique sur "Open"
+    if (response == GTK_RESPONSE_ACCEPT)
+    {
+        // Copie le contenu du fichier dans content
+        FILE *file = fopen(filename, "r");
+        if (file)
+        {
+            long length;
+
+            fseek(file, 0, SEEK_END);
+            length = ftell(file);
+            fseek(file, 0, SEEK_SET);
+            content = malloc(length);
+
+            if (content)
+            {
+                fread(content, 1, length, file);
+                content[length] = '\0';
+            }
+
+            fclose(file);
+        }
+
+        if (content)
+        {
+            // Mettre le contenu dans le buffer de texte
+            GtkTextIter start, end;
+            gtk_text_buffer_get_bounds(bufferTextEntry, &start, &end);
+            gtk_text_buffer_delete(bufferTextEntry, &start, &end);        // Effacer le texte existant
+            gtk_text_buffer_insert(bufferTextEntry, &start, content, -1); // Insérer le contenu du fichier
+        }
+
+        // Fermer le fichier et libérer la mémoire
+        g_free(content);
+        printf("Fichier lu avec succès : %s\n", filename);
+    }
+    else
+        perror("Erreur lors de l'ouverture du fichier");
+
+    g_free(filename);
+    gtk_widget_destroy(dialog);
+
+    return 1;
+}
+
 int main(int argc, char *argv[])
 {
     GtkWidget *quit_menu_item;
     GtkWidget *about_menu_item;
     GtkWidget *save_file_menu_item;
+    GtkWidget *open_file_menu_item;
 
     // Initialisation
     initArbre();
@@ -397,6 +467,14 @@ int main(int argc, char *argv[])
         return 1;
     }
     g_signal_connect(save_file_menu_item, "activate", G_CALLBACK(on_save_file_menu_item_activate), NULL);
+
+    open_file_menu_item = GTK_WIDGET(gtk_builder_get_object(builder_global, "open_file_menu_item"));
+    if (!open_file_menu_item)
+    {
+        printf(COLOR_RED "Erreur : Impossible de trouver le widget 'open_file_menu_item'\n" COLOR_RESET);
+        return 1;
+    }
+    g_signal_connect(open_file_menu_item, "activate", G_CALLBACK(on_open_file_menu_item_activate), NULL);
 
     gtk_window_set_default_size(GTK_WINDOW(main_window), 600, 400);
     gtk_widget_show_all(main_window);

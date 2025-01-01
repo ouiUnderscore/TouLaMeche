@@ -106,7 +106,7 @@ Développé par Emilie Zammit.</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="open_file_menu_item">
                         <property name="label" translatable="yes">Open file</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>

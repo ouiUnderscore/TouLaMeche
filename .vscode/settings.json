@@ -8,7 +8,8 @@
         "hash.h": "c",
         "string.h": "c",
         "entree_sortie.h": "c",
-        "gtk.h": "c"
+        "gtk.h": "c",
+        "string_view": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
