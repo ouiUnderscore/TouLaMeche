@@ -548,6 +548,52 @@ void on_database_button_clicked()
     afficherArbre(&root, 0);
 }
 
+void on_open_database_menu_item_activate() {
+    printf(COLOR_ORANGE "Log : Menu item open database\n" COLOR_RESET);
+
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new("Open Database", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
+
+    // Ajouter un filtre n'afficher que les fichier au bon format
+    GtkFileFilter *filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.tlmdb");
+    gtk_file_filter_set_name(filter, "Text Files (*.tlmdb)");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+    int response = gtk_dialog_run(GTK_DIALOG(dialog));
+    char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+    // Si l'utilisateur clique sur "Cancel"
+    if (response == GTK_RESPONSE_CANCEL)
+    {
+        gtk_widget_destroy(dialog);
+        return;
+    }
+
+    // Si l'utilisateur clique sur "Open"
+    if (response == GTK_RESPONSE_ACCEPT)
+    {
+        // Copie le contenu du fichier dans content
+        FILE *file = fopen(filename, "r");
+        if (file == NULL) {
+            printf("Erreur : Impossible d'ouvrir le fichier %s\n", filename);
+            return;
+        }
+
+        loadTreeNode(file, &root);
+        
+        fclose(file);
+
+        printf("Fichier lu avec succès : %s\n", filename);
+    }
+
+    int totalMots = compterMotsArbre(&root) / Lg_N_gramme;
+    entryWordCount = totalMots;
+
+    g_free(filename);
+    gtk_widget_destroy(dialog);
+}
+
 int main(int argc, char *argv[])
 {
     GtkWidget *quit_menu_item;
@@ -615,6 +661,14 @@ int main(int argc, char *argv[])
         return 1;
     }
     g_signal_connect(save_database_menu_item, "activate", G_CALLBACK(on_save_database_menu_item_activate), NULL);
+
+    open_database_menu_item = GTK_WIDGET(gtk_builder_get_object(builder_global, "open_database_menu_item"));
+    if (!open_database_menu_item)
+    {
+        printf(COLOR_RED "Erreur : Impossible de trouver le widget 'open_database_menu_item'\n" COLOR_RESET);
+        return 1;
+    }
+    g_signal_connect(open_database_menu_item, "activate", G_CALLBACK(on_open_database_menu_item_activate), NULL);
 
     gtk_window_set_default_size(GTK_WINDOW(main_window), 600, 400);
     gtk_widget_show_all(main_window);

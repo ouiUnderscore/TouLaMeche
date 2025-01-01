@@ -142,3 +142,19 @@ void afficherArbre(TreeNode *node, int niveau)
         afficherArbre(enfant, niveau + 1);
     }
 }
+
+int compterMotsArbre(TreeNode *node)
+{
+    if (node == NULL)
+        return 0;
+
+    int compteur = 1; // Compte le mot du nœud actuel
+
+    for (int i = 0; i < node->fils->size; i++)
+    {
+        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
+        compteur += compterMotsArbre(enfant); // Ajoute les mots des nœuds enfants
+    }
+
+    return compteur;
+}
