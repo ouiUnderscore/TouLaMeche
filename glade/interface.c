@@ -21,6 +21,7 @@ GtkWidget *quit_window_file_button;
 GtkTextBuffer *bufferTextEntry;
 
 struct strhash_table *ht;
+int entryWordCount = 0; // Variable permettant de compter le nombre de mot entré dans le champ de saisie
 
 int initialize_main_window();
 void initialize_quit_window();
@@ -178,7 +179,6 @@ void on_text_buffer_changed(GtkTextBuffer *buffer)
 {
     static int previous_length = 0;        // Stocke la longueur précédente du texte
     static int previous_was_separator = 0; // Indique si le dernier caractère était un séparateur
-    static int count = 0;
     GtkTextIter start, end;
     char *text;
 
@@ -222,9 +222,9 @@ void on_text_buffer_changed(GtkTextBuffer *buffer)
                         sequence_addWord(last_word, ht);
                         sequence_progress();
                         searchOrCreateTreeNode();
-                        count++;
+                        entryWordCount++;
 
-                        if (count > 3)
+                        if (entryWordCount > 3)
                         {
                             TreeNode *noeudFinal = searchOrCreateLeaf(&root, last_word);
                             TreeNode *motPrevu = maxOccurrence(noeudFinal);
@@ -363,6 +363,10 @@ int on_open_file_menu_item_activate()
     int response = gtk_dialog_run(GTK_DIALOG(dialog));
     char *content = 0;
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+    long length;
+
+    sequence_initialize(ht);
+    entryWordCount = 0;
 
     // Si l'utilisateur clique sur "Cancel"
     if (response == GTK_RESPONSE_CANCEL)
@@ -378,8 +382,6 @@ int on_open_file_menu_item_activate()
         FILE *file = fopen(filename, "r");
         if (file)
         {
-            long length;
-
             fseek(file, 0, SEEK_END);
             length = ftell(file);
             fseek(file, 0, SEEK_SET);
@@ -401,6 +403,34 @@ int on_open_file_menu_item_activate()
             gtk_text_buffer_get_bounds(bufferTextEntry, &start, &end);
             gtk_text_buffer_delete(bufferTextEntry, &start, &end);        // Effacer le texte existant
             gtk_text_buffer_insert(bufferTextEntry, &start, content, -1); // Insérer le contenu du fichier
+
+            const char *separators = " \t\n.,;!?()[]{}:<>\"";
+            char last_word[256] = "";
+            int was_sep = 0;
+            int pos_last_word = 0;
+
+            // Parcours tous les caractères du contenu
+            for (int i = 0; i <= length; i++)
+            {
+                // Si le caractère est un séparateur, ajoute le mot dans la table de hashage
+                if ((strchr(separators, content[i]) && was_sep == 0) || i == length)
+                {
+                    printf("a : %s\n", last_word);
+                    sequence_addWord(last_word, ht);
+                    sequence_progress();
+                    searchOrCreateTreeNode();
+                    strcpy(last_word, "");
+                    was_sep = 1;
+                    pos_last_word = 0;
+                    entryWordCount++;
+                }
+                // Si non concatene le dernier caractère avec le mot 
+                else if (!strchr(separators, content[i]))
+                {
+                    last_word[pos_last_word++] = content[i];
+                    was_sep = 0;
+                }
+            }
         }
 
         // Fermer le fichier et libérer la mémoire
