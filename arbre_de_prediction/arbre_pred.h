@@ -58,6 +58,7 @@ TreeNode *searchOrCreateLeaf(TreeNode *finalNode, const char *word);
  */
 TreeNode *maxOccurrence(TreeNode *finalNode);
 
+void afficherArbre(TreeNode *node, int niveau);
 int compterMotsArbre(TreeNode *node);
 
 #endif

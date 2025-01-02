@@ -19,22 +19,6 @@
 #define COLOR_RED "\033[31m"
 #define COLOR_ORANGE "\033[33m"
 
-void afficherArbre(TreeNode *node, int niveau)
-{
-    if (node == NULL)
-        return;
-
-    for (int i = 0; i < niveau; i++)
-        printf("  ");
-    printf("- %s (occurrences : %d)\n", node->mot, node->nb_occurrences);
-
-    for (int i = 0; i < node->fils->size; i++)
-    {
-        TreeNode *enfant = (TreeNode *)readTabD(node->fils, i);
-        afficherArbre(enfant, niveau + 1);
-    }
-}
-
 void test_initArbre()
 {
     printf(COLOR_ORANGE "[TEST] Initialisation de l'arbre\n" COLOR_WHITE);

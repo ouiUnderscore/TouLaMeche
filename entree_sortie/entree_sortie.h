@@ -25,6 +25,4 @@ void saveTreeNode(FILE *fichier, TreeNode *node, int level);
 // Fonction pour charger l'arbre depuis un fichier
 void loadTreeNode(FILE *fichier, TreeNode *node);
 
-void afficherArbre(TreeNode *node, int niveau);
-
 #endif  
