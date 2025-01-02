@@ -1,0 +1,45 @@
+[
+	
+	[
+		
+		[
+			
+			[
+				[ p=1 --> petit ]
+			]
+		]
+		[
+			petit
+			[
+				[ p=1 --> chaperon ]
+			]
+		]
+	]
+	[
+		petit
+		[
+			chaperon
+			[
+				[ p=1 --> rouge ]
+			]
+		]
+	]
+	[
+		chaperon
+		[
+			rouge
+			[
+				[ p=1 --> petit ]
+			]
+		]
+	]
+	[
+		rouge
+		[
+			petit
+			[
+				[ p=1 --> chaperon ]
+			]
+		]
+	]
+]
